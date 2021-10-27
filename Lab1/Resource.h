@@ -13,6 +13,8 @@
 #define IDI_SMALL				108
 #define IDC_LAB1			109
 #define IDC_MYICON				2
+#define IDM_START                       32773
+#define IDM_STOP                        32774
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
 #endif
