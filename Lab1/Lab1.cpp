@@ -78,7 +78,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hInstance;
     wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_LAB1));
-    wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
+    wcex.hCursor        = (HICON)LoadImage(NULL, L"./cursor.ico", IMAGE_CURSOR, 20, 20, LR_LOADFROMFILE);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
     wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_LAB1);
     wcex.lpszClassName  = szWindowClass;
@@ -102,7 +102,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // Сохранить маркер экземпляра в глобальной переменной
 
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+      CW_USEDEFAULT, 0, window_width, window_height, nullptr, nullptr, hInstance, nullptr);
+
+   SetTimer(hWnd, 1, 10, (TIMERPROC)NULL);
 
    if (!hWnd)
    {
@@ -155,17 +157,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_PAINT:
         {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-            // TODO: Добавьте сюда любой код прорисовки, использующий HDC...
-            EndPaint(hWnd, &ps);
+			PAINTSTRUCT ps;
+			HDC hdc = BeginPaint(hWnd, &ps);
+			HFONT hFont = CreateFont(40, 0, 0, 0, FW_BOLD, 0, 0, 0, RUSSIAN_CHARSET, 0, 0, 0, 0, L"SYSTEM_FIXED_FONT");
+			SelectObject(ps.hdc, hFont);
+			TextOut(hdc, xcoord - 1, 200, L" ", 1);
+			TextOut(hdc, xcoord, 200, L"Сообщение", 9);
+			return 0;
+			EndPaint(hWnd, &ps);
         }
         break;
 
 	case WM_TIMER:
+		if (isPaused)
+		{
+			break;
+		}
+		if (xcoord > window_width)
+		{
+			xcoord = 0;
+		}
+		xcoord += 2;
+		InvalidateRect(hWnd, NULL, FALSE);
 		break;
+	
     case WM_DESTROY:
-        PostQuitMessage(0);
+		KillTimer(hWnd, 1);
+		PostQuitMessage(0);
         break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
